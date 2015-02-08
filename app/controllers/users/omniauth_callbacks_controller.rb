@@ -2,11 +2,13 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def github
     user = User.find_or_create_from_auth_hash(auth_hash)
 
-    unless user.active?
+    if ! user.active?
       session[:user_return_to] = edit_user_path
       flash[:alert] = t('flash_messages.warning_for_nonactive_users')
+    elsif auth_params_hash.present? 
+      session[:user_return_to] = user_path(auth_params_hash)
     end
-
+  
     sign_in_and_redirect user, event: :authentication #this will throw if @user is not activated
 
     # TODO 認証を拒否した場合のフローも必要な気がするが、GitHubは拒否するボタンがないのでテストできない？
@@ -23,9 +25,14 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     # end
   end
 
+
   private
 
   def auth_hash
     request.env['omniauth.auth']
+  end
+
+  def auth_params_hash
+    request.env['omniauth.params']['usershow']
   end
 end
