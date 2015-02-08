@@ -5,8 +5,8 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     if ! user.active?
       session[:user_return_to] = edit_user_path
       flash[:alert] = t('flash_messages.warning_for_nonactive_users')
-    elsif auth_params_hash.present? 
-      session[:user_return_to] = user_path(auth_params_hash)
+    elsif auth_params_nickname.present? 
+      session[:user_return_to] = user_path(auth_params_nickname)
     end
   
     sign_in_and_redirect user, event: :authentication #this will throw if @user is not activated
@@ -32,7 +32,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     request.env['omniauth.auth']
   end
 
-  def auth_params_hash
+  def auth_params_nickname
     request.env['omniauth.params']['usershow']
   end
 end
